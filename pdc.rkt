@@ -36,7 +36,9 @@
   cond ((not (equal? row 0)) (changer_Aux (cdr matrix) (- row 1) col (
          append res (list (car matrix))) value))
        ((and (equal? row 0) (not (equal? col 0))) (append (append res (
-         list (susti value col (car matrix) '()))) (cdr matrix)))
+         list (susti value col (car matrix) '()))) (cdr matrix)))(
+           else (append (list (susti value col (car matrix) '())) (cdr matrix))
+           )
   ))
 
 ;Funcion que modifica un valor en una lista
@@ -46,8 +48,22 @@
     )
   ))
 
+;Funcion que obtiene el valor de una lista
+(define (get_Val matrix row col)(
+  cond ((not (equal? row 0)) (get_Val (cdr matrix) (- row 1) col))
+       ((and (equal? row 0) (not (equal? col 0))) (get_ValAux col (car matrix)))(
+         else (caar matrix)
+         )
+  ))
+
+;Funcion auxiliar para obtener el valor
+(define (get_ValAux pos lista)(
+  cond ((equal? pos 0) (car lista))(
+    else (get_ValAux (- pos 1) (cdr lista))
+    )
+  ))
+
 
 ;(define table '((1 2 3) (4 5 6) (7 8 9) (10 11 12) (13 14 15)))
-;(define table (crear_Tablero 3))
+;(define table (crear_Tablero 8))
 ;(write table)
-(change_Value table 1 1 69)
