@@ -119,6 +119,18 @@
     )
   ))
 
+;Validar si la poscion es valida
+(define (checkPos matriz posFil posCol)(
+  cond ((equal? (checkPos_AUX matriz posFil posCol) #t) #t )(
+    else #f )
+  ))
+
+;Funcion Auxiliar para validar la posicion
+(define (checkPos_AUX matriz posFil posCol)(
+  cond ((and (equal? posFil 0) (equal? (get_ValAux posCol (car matriz)) 0)) #t)
+       ((> posFil 0) (checkPos_AUX (cdr matriz) (- posFil 1) posCol))(
+         else #f )
+  )
 ;(define table '((1 2 3) (4 5 6) (7 8 9) (10 11 12) (13 14 15)))
 ;(define table (crear_Tablero 8))
 ;(write table)
