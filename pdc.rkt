@@ -19,8 +19,8 @@
 
 ; Funcion que crea la una lista llena de 0s
 (define (mk_List num_elemt rList)(
-  if (equal? num_elemt 0) rList (
-    mk_List (- num_elemt 1) (append rList (list 0))
+  cond ((equal? num_elemt 0) rList)(
+    else (mk_List (- num_elemt 1) (append rList (list 0)))
     )
   ))
 
