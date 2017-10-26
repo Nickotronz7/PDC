@@ -72,37 +72,50 @@
        ((and (equal? step 0) (<= 0 (+ (car actual) 1))
          (<= 0 (+ (cadr actual) 2)) (< (+ (car actual) 1) size)
            (< (+ (cadr actual) 2) size)) (generate_legal_moves actual
-             (append posible_movs (list '(1 2))) size (+ step 1)))
+             (append posible_movs (list (list (+ (car actual) 1) (+ (cadr actual) 2)))) size (+ step 1)))
        ((and (equal? step 1) (<= 0 (+ (car actual) 1))
          (<= 0 (- (cadr actual) 2)) (< (+ (car actual) 1) size)
            (< (- (cadr actual) 2) size)) (generate_legal_moves actual
-             (append posible_movs (list '(1 -2))) size (+ step 1)))
+             (append posible_movs (list (list (+ (car actual) 1) (- (cadr actual) 2)))) size (+ step 1)))
        ((and (equal? step 2) (<= 0 (- (car actual) 1))
          (<= 0 (+ (cadr actual) 2)) (< (- (car actual) 1) size)
            (< (+ (cadr actual) 2) size)) (generate_legal_moves actual
-             (append posible_movs (list '(-1 2))) size (+ step 1)))
+             (append posible_movs (list (list (- (car actual) 1) (+ (cadr actual) 2)))) size (+ step 1)))
        ((and (equal? step 3) (<= 0 (- (car actual) 1))
          (<= 0 (- (cadr actual) 2)) (< (- (car actual) 1) size)
            (< (- (cadr actual) 2) size)) (generate_legal_moves actual
-             (append posible_movs (list '(-1 -2))) size (+ step 1)))
+             (append posible_movs (list (list (- (car actual) 1) (- (cadr actual) 2)))) size (+ step 1)))
        ((and (equal? step 4) (<= 0 (+ (car actual) 2))
          (<= 0 (+ (cadr actual) 1)) (< (+ (car actual) 2) size)
            (< (+ (cadr actual) 1) size)) (generate_legal_moves actual
-             (append posible_movs (list '(2 1))) size (+ step 1)))
+             (append posible_movs (list (list (+ (car actual) 2) (+ (cadr actual) 1)))) size (+ step 1)))
        ((and (equal? step 5) (<= 0 (+ (car actual) 2))
          (<= 0 (- (cadr actual) 1)) (< (+ (car actual) 2) size)
            (< (- (cadr actual) 1) size)) (generate_legal_moves actual
-             (append posible_movs (list '(2 -1))) size (+ step 1)))
+             (append posible_movs (list (list (+ (car actual) 2) (- (cadr actual) 1)))) size (+ step 1))) ;(2 -1)
        ((and (equal? step 6) (<= 0 (- (car actual) 2))
          (<= 0 (+ (cadr actual) 1)) (< (- (car actual) 2) size)
            (< (+ (cadr actual) 1) size)) (generate_legal_moves actual
-             (append posible_movs (list '(-2 1))) size (+ step 1)))
+             (append posible_movs (list (list (- (car actual) 2) (+ (cadr actual) 1)))) size (+ step 1))) ;(-2 1)
        ((and (equal? step 7) (<= 0 (- (car actual) 2))
          (<= 0 (- (cadr actual) 1)) (< (- (car actual) 2) size)
            (< (- (cadr actual) 1) size)) (generate_legal_moves actual
-             (append posible_movs (list '(-2 -1))) size (+ step 1)))(
+             (append posible_movs (list (list (- (car actual) 2) (- (cadr actual) 1)))) size (+ step 1)))( ;(-2 -1)
          else (generate_legal_moves actual posible_movs size (+ step 1))
          )
+  ))
+
+;Fucion que cuenta el largo de una lista
+(define (lar lista res)(
+  cond ((null? lista) res)(
+    else (lar (cdr lista) (+ res 1))
+    )
+  ))
+
+(define (get_last lista)(
+  cond ((null? (cdr lista)) (car lista))(
+    else (get_last (cdr lista))
+    )
   ))
 
 ;Funcion para eliminar el ultimo elemento de una lista
@@ -120,17 +133,55 @@
   ))
 
 ;Validar si la poscion es valida
-(define (checkPos matriz posFil posCol)(
-  cond ((equal? (checkPos_AUX matriz posFil posCol) #t) #t )(
+(define (checkPos matriz row col)(
+  cond ((equal? (checkPos_AUX matriz row col) #t) #t )(
     else #f )
   ))
 
 ;Funcion Auxiliar para validar la posicion
-(define (checkPos_AUX matriz posFil posCol)(
-  cond ((and (equal? posFil 0) (equal? (get_ValAux posCol (car matriz)) 0)) #t)
-       ((> posFil 0) (checkPos_AUX (cdr matriz) (- posFil 1) posCol))(
+(define (checkPos_AUX matriz row col)(
+  cond ((and (equal? row 0) (equal? (get_ValAux col (car matriz)) 0)) #t)
+       ((> row 0) (checkPos_AUX (cdr matriz) (- row 1) col))(
          else #f )
-  )
+  ))
+
+(define (clean_list lista matriz)(
+  cond ((null? lista) '())(
+    else (cleanAux lista matriz '())
+    )
+  ))
+
+(define (cleanAux lista matriz res)(
+  cond ((null? lista) res)
+       ((equal? (checkPos matriz (caar lista) (cadar lista)) #t) (cleanAux (cdr lista) matriz (append res (list (car lista)))))(
+    else (cleanAux (cdr lista) matriz res)
+    )
+  ))
+
+(define (show_solution table)(
+  write table
+  ))
+
+;Funcion que obtiene el tour del caballo xD
+(define (cTour move path pos vecinos size table)(
+  cond ((equal? move (* size size)) (show_solution path))
+       ((equal? move 14) (show_solution path))
+       ((null? vecinos) move)(
+    else (cTour (+ move 1) (append path (list (car (clean_list vecinos table)))) (car vecinos) (clean_list (generate_legal_moves (car vecinos) '() size 0) table) size (change_Value table (car pos) (cadr pos) move))
+    )
+  ))
+
+(define (PDC-Sol size pos)(
+  cTour 1 '() pos (generate_legal_moves pos '() size 0) size (crear_Tablero size)
+  ))
+
+;(PDC-Sol 8 '(0 0))
+;(generate_legal_moves '(0 0) '() 8 0)
+;(clean_list '((7 7) (7 3) (5 7) (5 3) (4 6) (4 4)) '((1 0 0 0 0 0 0 0) (0 0 2 0 0 0 0 0) (0 0 0 0 3 0 0 0) (0 0 0 0 0 0 4 0) (0 0 0 0 5 0 0 0) (0 0 0 0 0 0 6 11) (0 0 0 0 9 14 0 0) (0 0 0 0 0 0 10 13)))
+
 ;(define table '((1 2 3) (4 5 6) (7 8 9) (10 11 12) (13 14 15)))
 ;(define table (crear_Tablero 8))
 ;(write table)
+;((1 0 0 0 0 0 0 0) (0 0 2 0 0 0 0 0) (0 0 0 0 3 0 0 0) (0 0 0 0 0 0 4 0) (0 0 0 0 5 0 0 0) (0 0 0 0 0 0 6 11) (0 0 0 0 9 14 0 0) (0 0 0 0 0 0 10 13))
+;((0 0) (1 2) (2 4) (3 6) (4 4) (5 6) (6 4) (7 6) (6 4) (7 6) (5 7) (6 5) (7 7) (6 5) (7 7))
+; 1      2     3     4     5    6       7     8     9     10    11    12    13    14    15
