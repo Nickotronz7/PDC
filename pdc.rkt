@@ -163,6 +163,38 @@
   write table
   ))
 
+  (define (get_Empty_Neighbors legalMoves neighbors mat pos)
+  (cond
+    ((null? legalMoves) neighbors)
+    ((equal? (checkPos mat (caar legalMoves) (cadar legalMoves)) #t) (get_Empty_Neighbors (cdr legalMoves) (append neighbors (list(car legalMoves))) mat pos))
+    (else
+     (get_Empty_Neighbors (cdr legalMoves) neighbors mat pos)
+     )
+    )
+  )
+
+(define (get_Scores neighbors scores matriz size)
+  (cond
+    ((null? neighbors) (car (sortScores scores '())))
+    (else
+     (get_Scores (cdr neighbors) (append scores (list(append (list(car neighbors)) (list(move_counter (car neighbors) matriz 0)))) ) matriz size)
+     )
+    )
+  )
+(define (move_counter pos matriz resultado)
+  (lar (get_Empty_Neighbors (generate_legal_moves pos '() 8 0) '() matriz '()) 0)
+  )
+(define (sortScores scores res)
+  (cond
+    ((null? scores) res)
+    ((null? res) (sortScores (cdr scores) (car scores)))
+    ((< (cadar scores) (cadr res)) (sortScores (cdr scores) (car scores)))
+    (else
+     (sortScores (cdr scores) res)
+     )
+    )
+  )
+
 ;Funcion que obtiene el tour del caballo
 (define (cTour move path pos vecinos size table)(
   cond ((equal? move (* size size)) (show_solution path))
@@ -176,4 +208,5 @@
   cTour 1 '() pos (generate_legal_moves pos '() size 0) size (crear_Tablero size)
   ))
 
-(PDC-Sol 8 '(0 0))
+(get_Scores (get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0 ) '() '((1 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0)) '(0 0)) '() '((1 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0)) 8)
+;(PDC-Sol 8 '(0 0))
