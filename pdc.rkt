@@ -146,28 +146,15 @@
          else #f )
   ))
 
-(define (clean_list lista matriz)(
-  cond ((null? lista) '())(
-    else (cleanAux lista matriz '())
-    )
-  ))
-
-(define (cleanAux lista matriz res)(
-  cond ((null? lista) res)
-       ((equal? (checkPos matriz (caar lista) (cadar lista)) #t) (cleanAux (cdr lista) matriz (append res (list (car lista)))))(
-    else (cleanAux (cdr lista) matriz res)
-    )
-  ))
-
 (define (show_solution table)(
   write table
   ))
 
-  (define (get_Empty_Neighbors legalMoves neighbors mat pos)
-  (cond
-    ((null? legalMoves) neighbors)
-    ((equal? (checkPos mat (caar legalMoves) (cadar legalMoves)) #t) (get_Empty_Neighbors (cdr legalMoves) (append neighbors (list(car legalMoves))) mat pos))
-    (else
+(define (get_Empty_Neighbors legalMoves neighbors mat pos)(
+  cond ((null? legalMoves) neighbors)
+       ((equal? (checkPos mat (caar legalMoves) (cadar legalMoves)) #t)
+         (get_Empty_Neighbors (cdr legalMoves) (append neighbors (list(car legalMoves))) mat pos))(
+         else
      (get_Empty_Neighbors (cdr legalMoves) neighbors mat pos)
      )
     )
@@ -181,9 +168,11 @@
      )
     )
   )
+
 (define (move_counter pos matriz resultado)
   (lar (get_Empty_Neighbors (generate_legal_moves pos '() 8 0) '() matriz '()) 0)
   )
+
 (define (sortScores scores res)
   (cond
     ((null? scores) res)
@@ -196,17 +185,30 @@
   )
 
 ;Funcion que obtiene el tour del caballo
-(define (cTour move path pos vecinos size table)(
-  cond ((equal? move (* size size)) (show_solution path))
-       ((equal? move 47) (show_solution path))
-       ((null? (clean_list vecinos table)) (cTour (- move 1) (deLast path (lar path 0)) (get_last (deLast path (lar path 0))) (cdr (clean_list (generate_legal_moves (get_last (deLast path (lar path 0))) '() size 0) table)) size table))(
-    else (cTour (+ move 1) (append path (list (car (clean_list vecinos table)))) (car vecinos) (clean_list (generate_legal_moves (car vecinos) '() size 0) table) size (change_Value table (car pos) (cadr pos) move))
+(define (cTour move next_pos path pos size table)(
+  cond ((equal? move (- (* size size) 1)) (show_solution (change_Value table (car next_pos) (cadr next_pos) (+ move 1))))(
+    else (cTour (+ move 1) (get_Scores (get_Empty_Neighbors (generate_legal_moves next_pos '() size 0) '() table next_pos) '() table next_pos) (append path (list pos)) next_pos size (change_Value table (car next_pos) (cadr next_pos) (+ move 1)))
     )
   ))
 
 (define (PDC-Sol size pos)(
-  cTour 1 '() pos (generate_legal_moves pos '() size 0) size (crear_Tablero size)
+  cTour 1 (get_Scores (get_Empty_Neighbors (generate_legal_moves pos '() size 0) '() (change_Value (crear_Tablero size) (car pos) (cadr pos) 1) pos) '() (change_Value (crear_Tablero size) (car pos) (cadr pos) 1) size) '() pos size (change_Value (crear_Tablero size) (car pos) (cadr pos) 1)
   ))
 
-(get_Scores (get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0 ) '() '((1 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0)) '(0 0)) '() '((1 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0)) 8)
-;(PDC-Sol 8 '(0 0))
+(define (todas_aux size pos cont res)(
+  cond ((equal? cont 0) (append res (cTour 1 (car (generate_legal_moves pos '() size 0)) '() pos size (change_Value (crear_Tablero size) (car pos) (cadr pos) 1))))(
+    else (todas_aux size pos (- cont 1) (append res (cTour 1 (get_ValAux cont (generate_legal_moves pos '() size 0)) '() pos size (change_Value (crear_Tablero size) (car pos) (cadr pos) 1))))
+    )
+  ))
+
+(define (PDC-Todas size pos)(
+  todas_aux size pos (lar ) '()
+  ))
+
+;(get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0) '() (change_Value (crear_Tablero 8) 0 0 1) '(0 0))
+;(get_ValAux (random (lar (get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0) '() (change_Value (crear_Tablero 8) 0 0 1) '(0 0)) 0)) (get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0) '() (change_Value (crear_Tablero 8) 0 0 1) '(0 0)))
+(define pos '(0 0))
+(define size 8)
+(PDC-Todas size pos)
+;(get_Scores (get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0 ) '() '((1 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0)) '(0 0)) '() '((1 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0)) 8)
+;(PDC-Sol 8 '(6 5))
