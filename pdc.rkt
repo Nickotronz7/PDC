@@ -34,11 +34,12 @@
 
 ;Funcion auxiliar para modificar valores en una matris
 (define (changer_Aux matrix row col res value)(
-  cond ((not (equal? row 0)) (changer_Aux (cdr matrix) (- row 1) col (
-         append res (list (car matrix))) value))
-       ((and (equal? row 0) (not (equal? col 0))) (append (append res (
-         list (susti value col (car matrix) '()))) (cdr matrix)))(
-           else (append (list (susti value col (car matrix) '())) (cdr matrix))
+  cond ((not (equal? row 0)) (changer_Aux (cdr matrix) (- row 1) col
+    (append res (list (car matrix))) value))
+       ((and (equal? row 0) (not (equal? col 0))) (append (append res
+         (list (susti value col (car matrix) '()))) (cdr matrix)))(
+           else (append (append res (list (susti value col (car matrix) '())))
+             (cdr matrix))
            )
   ))
 
@@ -162,11 +163,11 @@
   write table
   ))
 
-;Funcion que obtiene el tour del caballo xD
+;Funcion que obtiene el tour del caballo
 (define (cTour move path pos vecinos size table)(
   cond ((equal? move (* size size)) (show_solution path))
-       ((equal? move 14) (show_solution path))
-       ((null? vecinos) move)(
+       ((equal? move 47) (show_solution path))
+       ((null? (clean_list vecinos table)) (cTour (- move 1) (deLast path (lar path 0)) (get_last (deLast path (lar path 0))) (cdr (clean_list (generate_legal_moves (get_last (deLast path (lar path 0))) '() size 0) table)) size table))(
     else (cTour (+ move 1) (append path (list (car (clean_list vecinos table)))) (car vecinos) (clean_list (generate_legal_moves (car vecinos) '() size 0) table) size (change_Value table (car pos) (cadr pos) move))
     )
   ))
@@ -175,13 +176,4 @@
   cTour 1 '() pos (generate_legal_moves pos '() size 0) size (crear_Tablero size)
   ))
 
-;(PDC-Sol 8 '(0 0))
-;(generate_legal_moves '(0 0) '() 8 0)
-;(clean_list '((7 7) (7 3) (5 7) (5 3) (4 6) (4 4)) '((1 0 0 0 0 0 0 0) (0 0 2 0 0 0 0 0) (0 0 0 0 3 0 0 0) (0 0 0 0 0 0 4 0) (0 0 0 0 5 0 0 0) (0 0 0 0 0 0 6 11) (0 0 0 0 9 14 0 0) (0 0 0 0 0 0 10 13)))
-
-;(define table '((1 2 3) (4 5 6) (7 8 9) (10 11 12) (13 14 15)))
-;(define table (crear_Tablero 8))
-;(write table)
-;((1 0 0 0 0 0 0 0) (0 0 2 0 0 0 0 0) (0 0 0 0 3 0 0 0) (0 0 0 0 0 0 4 0) (0 0 0 0 5 0 0 0) (0 0 0 0 0 0 6 11) (0 0 0 0 9 14 0 0) (0 0 0 0 0 0 10 13))
-;((0 0) (1 2) (2 4) (3 6) (4 4) (5 6) (6 4) (7 6) (6 4) (7 6) (5 7) (6 5) (7 7) (6 5) (7 7))
-; 1      2     3     4     5    6       7     8     9     10    11    12    13    14    15
+(PDC-Sol 8 '(0 0))
