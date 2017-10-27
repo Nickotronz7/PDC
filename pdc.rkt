@@ -191,24 +191,63 @@
     )
   ))
 
+(define (todas_aux size pos cont res)(
+  cond ((equal? cont 0) (append res (cTour 1 (car (generate_legal_moves pos '() size 0)) '() pos size (change_Value (crear_Tablero size) (car pos) (cadr pos) 1))))(
+    else (todas_aux size pos (- cont 1) (append res (list (cTour 1 (get_ValAux cont (generate_legal_moves pos '() size 0)) '() pos size (change_Value (crear_Tablero size) (car pos) (cadr pos) 1))) ))
+    )
+  ))
+
+(define (valida? x x1 y y1)(
+  cond ((checks (- x x1) (- y y1)) #t)(
+    else #f
+    )
+  ))
+
+(define (moves n)
+  '((-2 -1) (-2 1) (-1 -2) (-1 2) (1 -2) (1 2) (2 -1) (2 1))
+  )
+
+(define (getele list ele)(
+  getAux list ele 0
+  ))
+
+(define (getAux list ele i)(
+  cond ((equal? list '()) -1)
+       ((equal? (car list) ele) i)(
+         else (getAux (cdr list) ele (+ i 1)))
+         ))
+
+(define (checks a b)(
+  cond ((not(equal? (getele (moves 8) (cons a (cons b '()))) -1)) #t)(
+    else #f)
+    ))
+
+(define (getpAux list ele size j pos)(
+  cond ((equal? j size) -1)
+       ((not(equal? (get_ValAux ele (car list)) -1)) (cons j (cons (get_ValAux ele (car list)) pos)))
+       ((equal? (car list) '()) -1)(
+         else (getpAux (cdr list) ele size (+ j 1) pos)))
+)
+
+(define (getpos mat ele size)(
+  getpAux mat ele size 0 '()))
+
+
+;Auxiliar de la funcion que prueba ruta
+(define (Testsol sol mat i N)(
+  cond ((equal? i (* N N)) (append mat(list(cons (car(getpos sol i N)) (cons (car(cdr(getpos sol i N))) '()))) ))
+  ((valida? (car(getpos sol i N)) (car(getpos sol (+ i 1) N)) (car(cdr(getpos sol i N))) (car(cdr(getpos sol (+ i 1) N))))(
+    Testsol sol (append mat(list(cons (car(getpos sol i N)) (cons (car(cdr(getpos sol i N))) '()))) ) (+ i 1) N))(
+      else #f)))
+
 (define (PDC-Sol size pos)(
   cTour 1 (get_Scores (get_Empty_Neighbors (generate_legal_moves pos '() size 0) '() (change_Value (crear_Tablero size) (car pos) (cadr pos) 1) pos) '() (change_Value (crear_Tablero size) (car pos) (cadr pos) 1) size) '() pos size (change_Value (crear_Tablero size) (car pos) (cadr pos) 1)
   ))
 
-(define (todas_aux size pos cont res)(
-  cond ((equal? cont 0) (append res (cTour 1 (car (generate_legal_moves pos '() size 0)) '() pos size (change_Value (crear_Tablero size) (car pos) (cadr pos) 1))))(
-    else (todas_aux size pos (- cont 1) (append res (cTour 1 (get_ValAux cont (generate_legal_moves pos '() size 0)) '() pos size (change_Value (crear_Tablero size) (car pos) (cadr pos) 1))))
-    )
-  ))
-
 (define (PDC-Todas size pos)(
-  todas_aux size pos (lar ) '()
+  todas_aux size pos (- (lar (get_Empty_Neighbors (generate_legal_moves pos '() size 0) '() (change_Value (crear_Tablero size) (car pos) (cadr pos) 1) pos) 0) 1) '()
   ))
 
-;(get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0) '() (change_Value (crear_Tablero 8) 0 0 1) '(0 0))
-;(get_ValAux (random (lar (get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0) '() (change_Value (crear_Tablero 8) 0 0 1) '(0 0)) 0)) (get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0) '() (change_Value (crear_Tablero 8) 0 0 1) '(0 0)))
-(define pos '(0 0))
-(define size 8)
-(PDC-Todas size pos)
-;(get_Scores (get_Empty_Neighbors (generate_legal_moves '(0 0) '() 8 0 ) '() '((1 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0)) '(0 0)) '() '((1 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0) (0 0 0 0 0 0 0 0)) 8)
-;(PDC-Sol 8 '(6 5))
+(define (PDC-Test N sol)(
+  Testsol sol '() 1 N
+    ))
